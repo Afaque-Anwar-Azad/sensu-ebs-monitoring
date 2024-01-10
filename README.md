@@ -1,34 +1,3 @@
-[![Sensu Bonsai Asset](https://img.shields.io/badge/Bonsai-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/Afaque-Anwar-Azad/sensu-ebs-monitoring)
-![Go Test](https://github.com/Afaque-Anwar-Azad/sensu-ebs-monitoring/workflows/Go%20Test/badge.svg)
-![goreleaser](https://github.com/Afaque-Anwar-Azad/sensu-ebs-monitoring/workflows/goreleaser/badge.svg)
-
-# Check Plugin Template
-
-## Overview
-check-plugin-template is a template repository which wraps the [Sensu Plugin SDK][2].
-To use this project as a template, click the "Use this template" button from the main project page.
-Once the repository is created from this template, you can use the [Sensu Plugin Tool][9] to
-populate the templated fields with the proper values.
-
-## Functionality
-
-After successfully creating a project from this template, update the `Config` struct with any
-configuration options for the plugin, map those values as plugin options in the variable `options`,
-and customize the `checkArgs` and `executeCheck` functions in [main.go][7].
-
-When writing or updating a plugin's README from this template, review the Sensu Community
-[plugin README style guide][3] for content suggestions and guidance. Remove everything
-prior to `# sensu-ebs-monitoring` from the generated README file, and add additional context about the
-plugin per the style guide.
-
-## Releases with Github Actions
-
-To release a version of your project, simply tag the target sha with a semver release without a `v`
-prefix (ex. `1.0.0`). This will trigger the [GitHub action][5] workflow to [build and release][4]
-the plugin with goreleaser. Register the asset with [Bonsai][8] to share it with the community!
-
-***
-
 # sensu-ebs-monitoring
 
 ## Table of Contents
@@ -44,11 +13,63 @@ the plugin with goreleaser. Register the asset with [Bonsai][8] to share it with
 
 ## Overview
 
-The sensu-ebs-monitoring is a [Sensu Check][6] that ...
-
-## Files
+The sensu-ebs-monitoring provides a diverse set of monitoring options for AWS EBS. 
 
 ## Usage examples
+
+```
+Usage:
+  sensu-ebs-monitoring [flags]
+  sensu-ebs-monitoring [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  version     Print the version number of this plugin
+
+Flags:
+      --region string                Sets the region of volume
+      --volume-id string             Sets the volumeId
+      --interval int                 Sets the interval in seconds for calcuating threshold status (default 60)
+      --avg-readlatency string       Sets threshold in ms/op for read latency 
+      --avg-writelatency string      Sets threshold in ms/op for write latency
+      --max-iops string              Sets threshold for maximum IOPS
+      --max-readops string           Sets maximum threshold for read operations
+      --max-readthroughput string    Sets maximum threshold in KiB for read throughput
+      --max-writeops string          Sets maximum threshold for write operations
+      --max-writethroughput string   Sets maximum threshold in KiB for write throughput
+      --min-iops string              Sets threshold for minimum IOPS
+      --min-readops string           Sets minimum threshold for read operations
+      --min-readthroughput string    Sets minimum threshold in KiB for read throughput
+      --min-writeops string          Sets minimum threshold for write operations
+      --min-writethroughput string   Sets minimum threshold in KiB for write throughput
+      --nitro bool                   Sets whether the instance attached to ebs volume is nitro based (default false)
+  -h, --help                         help for sensu-ebs-monitoring
+
+Use "sensu-ebs-monitoring [command] --help" for more information about a command.
+```
+
+Note: It is important to specify the --region along with --volume-id followed by the desired check attribute.
+The warning and critical values need to passed as command separated values. eg:- warning=<warningValue>,critical=<criticalValue>
+
+### Example commands
+Command to create a check which sets threshold for maximum iops :
+```
+sensu-ebs-monitoring --volume-id vol-0casdf98y9h988asd --region eu-west-1 --max-iops warning=8000,critical=10000 --interval 3600
+```
+
+Command to create a check which sets thresold for maximum read ops :
+```
+sensu-ebs-monitoring --volume-id vol-0casdf98y9h988asd --region eu-west-1 --max-readops critical=10000 --interval 3600
+```
+
+Command to create a check which sets thresold for average read latency for the volume attached to nitro based instance :
+```
+sensu-ebs-monitoring --volume-id vol-0casdf98y9h988asd --region eu-west-1 --max-readops warning=5,critical=10 --nitro true interval 60 
+```
+
+
+
 
 ## Configuration
 
@@ -74,7 +95,7 @@ metadata:
   name: sensu-ebs-monitoring
   namespace: default
 spec:
-  command: sensu-ebs-monitoring --example example_arg
+  command: sensu-ebs-monitoring --volume-id vol-0casdf98y9h988asd --region eu-west-1 --max-readops critical=10000
   subscriptions:
   - system
   runtime_assets:

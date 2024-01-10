@@ -83,7 +83,7 @@ var (
 			Argument:  "max-readthroughput",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets maximum threshold for read throughput",
+			Usage:     "Sets maximum threshold in KiB for read throughput",
 			Value:     &plugin.maxReadThroughput,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -92,7 +92,7 @@ var (
 			Argument:  "min-readthroughput",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets minimum threshold for read throughput",
+			Usage:     "Sets minimum threshold in KiB for read throughput",
 			Value:     &plugin.minReadThroughput,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -101,7 +101,7 @@ var (
 			Argument:  "max-writethroughput",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets maximum threshold for write throughput",
+			Usage:     "Sets maximum threshold in KiB for write throughput",
 			Value:     &plugin.maxWriteThroughput,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -110,7 +110,7 @@ var (
 			Argument:  "min-writethroughput",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets minimum threshold for write throughput",
+			Usage:     "Sets minimum threshold in KiB for write throughput",
 			Value:     &plugin.minWriteThroughput,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -119,7 +119,7 @@ var (
 			Argument:  "max-readops",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets maximum threshold for read operations",
+			Usage:     "Sets maximum threshold in ms/op for read operations",
 			Value:     &plugin.maxReadOps,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -128,7 +128,7 @@ var (
 			Argument:  "min-readops",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets minimum threshold for read operations",
+			Usage:     "Sets minimum threshold in ms/op for read operations",
 			Value:     &plugin.minReadOps,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -137,7 +137,7 @@ var (
 			Argument:  "max-writeops",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets maximum threshold for write operations",
+			Usage:     "Sets maximum threshold in ms/op for write operations",
 			Value:     &plugin.maxWriteOps,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -146,7 +146,7 @@ var (
 			Argument:  "min-writeops",
 			Shorthand: "",
 			Default:   "",
-			Usage:     "Sets minimum threshold for write operations",
+			Usage:     "Sets minimum threshold in ms/op for write operations",
 			Value:     &plugin.minWriteOps,
 		},
 		&sensu.PluginConfigOption[string]{
@@ -173,7 +173,7 @@ var (
 			Argument:  "nitro",
 			Shorthand: "",
 			Default:   false,
-			Usage:     "Sets threshold for write latency",
+			Usage:     "Sets whether the attached instance of the ebs volume is nitro based (default false)",
 			Value:     &plugin.isNitroInstance,
 		},
 		&sensu.PluginConfigOption[string]{
