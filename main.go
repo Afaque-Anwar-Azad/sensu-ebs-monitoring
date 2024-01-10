@@ -37,6 +37,8 @@ type Config struct {
 	avgReadLatency     string
 	avgWriteLatency    string
 	isNitroInstance    bool
+	maxIOPS            string
+	minIOPS            string
 }
 
 var (
@@ -168,11 +170,29 @@ var (
 		&sensu.PluginConfigOption[bool]{
 			Path:      "",
 			Env:       "",
-			Argument:  "--nitro",
+			Argument:  "nitro",
 			Shorthand: "",
 			Default:   false,
 			Usage:     "Sets threshold for write latency",
 			Value:     &plugin.isNitroInstance,
+		},
+		&sensu.PluginConfigOption[string]{
+			Path:      "",
+			Env:       "",
+			Argument:  "max-iops",
+			Shorthand: "",
+			Default:   "",
+			Usage:     "Sets threshold for maximum IOPS",
+			Value:     &plugin.maxIOPS,
+		},
+		&sensu.PluginConfigOption[string]{
+			Path:      "",
+			Env:       "",
+			Argument:  "min-iops",
+			Shorthand: "",
+			Default:   "",
+			Usage:     "Sets threshold for minimum IOPS",
+			Value:     &plugin.minIOPS,
 		},
 	}
 )
@@ -233,62 +253,74 @@ func executeCheck(event *corev2.Event) (int, error) {
 
 	if len(plugin.maxReadThroughput) > 0 {
 		warning, critical := extractThresholdPoints(plugin.maxReadThroughput)
-		value, state := CheckmaxReadThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
-		return handleCheckResult("max read throughput", value, state)
+		value, state := checkMaxReadThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
+		return handleCheckResult("read throughput", value, state)
 	}
 
 	if len(plugin.minReadThroughput) > 0 {
 		warning, critical := extractThresholdPoints(plugin.minReadThroughput)
-		value, state := CheckminReadThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMinReadThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("read throughput", value, state)
 	}
 
 	if len(plugin.maxWriteThroughput) > 0 {
 		warning, critical := extractThresholdPoints(plugin.maxWriteThroughput)
-		value, state := CheckmaxWriteThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMaxWriteThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("write throughput", value, state)
 	}
 
 	if len(plugin.minWriteThroughput) > 0 {
 		warning, critical := extractThresholdPoints(plugin.minWriteThroughput)
-		value, state := CheckminWriteThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMinWriteThroughput(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("write throughput", value, state)
 	}
 
 	if len(plugin.maxReadOps) > 0 {
 		warning, critical := extractThresholdPoints(plugin.maxReadOps)
-		value, state := CheckmaxReadOps(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMaxReadOps(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("read ops", value, state)
 	}
 
 	if len(plugin.minReadOps) > 0 {
 		warning, critical := extractThresholdPoints(plugin.minReadOps)
-		value, state := CheckminReadOps(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMinReadOps(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("read ops", value, state)
 	}
 
 	if len(plugin.maxWriteOps) > 0 {
 		warning, critical := extractThresholdPoints(plugin.maxWriteOps)
-		value, state := CheckmaxWriteOps(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMaxWriteOps(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("write ops", value, state)
 	}
 
 	if len(plugin.minWriteOps) > 0 {
 		warning, critical := extractThresholdPoints(plugin.minWriteOps)
-		value, state := CheckminWriteOps(client, plugin.volumeId, warning, critical, plugin.interval)
+		value, state := checkMinWriteOps(client, plugin.volumeId, warning, critical, plugin.interval)
 		return handleCheckResult("write ops", value, state)
 	}
 
 	if len(plugin.avgReadLatency) > 0 {
 		warning, critical := extractThresholdPoints(plugin.avgReadLatency)
-		value, state := CheckavgReadLatency(client, plugin.volumeId, warning, critical, plugin.interval, plugin.isNitroInstance)
+		value, state := checkAvgReadLatency(client, plugin.volumeId, warning, critical, plugin.interval, plugin.isNitroInstance)
 		return handleCheckResult("avg read latency", value, state)
 	}
 
 	if len(plugin.avgWriteLatency) > 0 {
 		warning, critical := extractThresholdPoints(plugin.avgWriteLatency)
-		value, state := CheckavgWriteLatency(client, plugin.volumeId, warning, critical, plugin.interval, plugin.isNitroInstance)
+		value, state := checkAvgWriteLatency(client, plugin.volumeId, warning, critical, plugin.interval, plugin.isNitroInstance)
 		return handleCheckResult("avg write latency", value, state)
+	}
+
+	if len(plugin.maxIOPS) > 0 {
+		warning, critical := extractThresholdPoints(plugin.maxIOPS)
+		value, state := checkMaxIOPS(client, plugin.volumeId, warning, critical, plugin.interval)
+		return handleCheckResult("iops", value, state)
+	}
+
+	if len(plugin.minIOPS) > 0 {
+		warning, critical := extractThresholdPoints(plugin.minIOPS)
+		value, state := checkMinIOPS(client, plugin.volumeId, warning, critical, plugin.interval)
+		return handleCheckResult("iops", value, state)
 	}
 	return sensu.CheckStateOK, nil
 }
@@ -307,7 +339,7 @@ func handleCheckResult(metricName string, value int, state int) (int, error) {
 	}
 }
 
-func CheckMaxThresholdStatus(currentValue int, warning int, critical int) int {
+func checkMaxThresholdStatus(currentValue int, warning int, critical int) int {
 	if currentValue > critical {
 		return 2
 	} else if currentValue > warning {
@@ -316,7 +348,7 @@ func CheckMaxThresholdStatus(currentValue int, warning int, critical int) int {
 	return 0
 }
 
-func CheckMinThresholdStatus(currentValue int, warning int, critical int) int {
+func checkMinThresholdStatus(currentValue int, warning int, critical int) int {
 	if currentValue < critical {
 		return 2
 	} else if currentValue < warning {
@@ -325,66 +357,78 @@ func CheckMinThresholdStatus(currentValue int, warning int, critical int) int {
 	return 0
 }
 
-func CheckmaxReadThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMaxReadThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMaxReadThroughput := getMetric(client, volumeID, "VolumeReadBytes", "Sum", period) / period / 1024
-	return currentMaxReadThroughput, CheckMaxThresholdStatus(currentMaxReadThroughput, warning, critical)
+	return currentMaxReadThroughput, checkMaxThresholdStatus(currentMaxReadThroughput, warning, critical)
 
 }
 
-func CheckminReadThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMinReadThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMinReadThroughput := getMetric(client, volumeID, "VolumeReadBytes", "Sum", period) / period / 1024
-	return currentMinReadThroughput, CheckMinThresholdStatus(currentMinReadThroughput, warning, critical)
+	return currentMinReadThroughput, checkMinThresholdStatus(currentMinReadThroughput, warning, critical)
 }
 
-func CheckmaxWriteThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMaxWriteThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMaxWriteThroughput := getMetric(client, volumeID, "VolumeWriteBytes", "Sum", period) / period / 1024
-	return currentMaxWriteThroughput, CheckMaxThresholdStatus(currentMaxWriteThroughput, warning, critical)
+	return currentMaxWriteThroughput, checkMaxThresholdStatus(currentMaxWriteThroughput, warning, critical)
 
 }
 
-func CheckminWriteThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMinWriteThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMinWriteThroughput := getMetric(client, volumeID, "VolumeWriteBytes", "Sum", period) / period / 1024
-	return currentMinWriteThroughput, CheckMinThresholdStatus(currentMinWriteThroughput, warning, critical)
+	return currentMinWriteThroughput, checkMinThresholdStatus(currentMinWriteThroughput, warning, critical)
 }
 
-func CheckmaxReadOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMaxReadOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMaxReadOps := getMetric(client, volumeID, "VolumeReadOps", "Sum", period) / period
-	return currentMaxReadOps, CheckMaxThresholdStatus(currentMaxReadOps, warning, critical)
+	return currentMaxReadOps, checkMaxThresholdStatus(currentMaxReadOps, warning, critical)
 }
 
-func CheckminReadOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMinReadOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMinReadOps := getMetric(client, volumeID, "VolumeReadOps", "Sum", period) / period
-	return currentMinReadOps, CheckMinThresholdStatus(currentMinReadOps, warning, critical)
+	return currentMinReadOps, checkMinThresholdStatus(currentMinReadOps, warning, critical)
 }
 
-func CheckmaxWriteOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMaxWriteOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMaxWriteOps := getMetric(client, volumeID, "VolumeWriteOps", "Sum", period) / period
-	return currentMaxWriteOps, CheckMaxThresholdStatus(currentMaxWriteOps, warning, critical)
+	return currentMaxWriteOps, checkMaxThresholdStatus(currentMaxWriteOps, warning, critical)
 }
 
-func CheckminWriteOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+func checkMinWriteOps(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
 	currentMinWriteOps := getMetric(client, volumeID, "VolumeWriteOps", "Sum", period) / period
-	return currentMinWriteOps, CheckMinThresholdStatus(currentMinWriteOps, warning, critical)
+	return currentMinWriteOps, checkMinThresholdStatus(currentMinWriteOps, warning, critical)
 }
 
-func CheckavgReadLatency(client *cloudwatch.Client, volumeID string, warning int, critical int, period int, isNitro bool) (int, int) {
-	currentReadLatency := getMetric(client, volumeID, "VolumeTotalReadTime", "Avg", period) * 1000
-	if isNitro == true {
+func checkAvgReadLatency(client *cloudwatch.Client, volumeID string, warning int, critical int, period int, isNitro bool) (int, int) {
+	currentReadLatency := getMetric(client, volumeID, "VolumeTotalReadTime", "Average", period) * 1000
+	if isNitro {
 		volReadTime := getMetric(client, volumeID, "VolumeTotalReadTime", "Sum", period)
 		volReadOps := getMetric(client, volumeID, "VolumeReadOps", "Sum", period)
 		currentReadLatency = (volReadTime / volReadOps) * 1000
 	}
-	return currentReadLatency, CheckMaxThresholdStatus(currentReadLatency, warning, critical)
+	return currentReadLatency, checkMaxThresholdStatus(currentReadLatency, warning, critical)
 }
 
-func CheckavgWriteLatency(client *cloudwatch.Client, volumeID string, warning int, critical int, period int, isNitro bool) (int, int) {
-	currentWriteLatency := getMetric(client, volumeID, "VolumeTotalWriteTime", "Avg", period) * 1000
-	if isNitro == true {
+func checkAvgWriteLatency(client *cloudwatch.Client, volumeID string, warning int, critical int, period int, isNitro bool) (int, int) {
+	currentWriteLatency := getMetric(client, volumeID, "VolumeTotalWriteTime", "Average", period) * 1000
+	if isNitro {
 		volReadTime := getMetric(client, volumeID, "VolumeTotalWriteTime", "Sum", period)
 		volReadOps := getMetric(client, volumeID, "VolumeWriteOps", "Sum", period)
 		currentWriteLatency = (volReadTime / volReadOps) * 1000
 	}
-	return currentWriteLatency, CheckMaxThresholdStatus(currentWriteLatency, warning, critical)
+	return currentWriteLatency, checkMaxThresholdStatus(currentWriteLatency, warning, critical)
+}
+
+func checkMaxIOPS(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+	volumeIdle := getMetric(client, volumeID, "VolumeIdleTime", "Maximum", period)
+	currentIOPS := ((getMetric(client, volumeID, "VolumeWriteOps", "Maximum", period)) + (getMetric(client, volumeID, "VolumeReadOps", "Maximum", period))) / (period - volumeIdle)
+	return currentIOPS, checkMaxThresholdStatus(currentIOPS, warning, critical)
+}
+
+func checkMinIOPS(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
+	volumeIdle := getMetric(client, volumeID, "VolumeIdleTime", "Minimum", period)
+	currentIOPS := ((getMetric(client, volumeID, "VolumeWriteOps", "Minimum", period)) + (getMetric(client, volumeID, "VolumeReadOps", "Minimum", period))) / (period - volumeIdle)
+	return currentIOPS, checkMinThresholdStatus(currentIOPS, warning, critical)
 }
 
 func getMetric(client *cloudwatch.Client, volumeID, metricName, stat string, period int) int {
