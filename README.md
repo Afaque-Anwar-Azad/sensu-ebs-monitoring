@@ -49,8 +49,7 @@ Flags:
 Use "sensu-ebs-monitoring [command] --help" for more information about a command.
 ```
 
-Note: It is important to specify the --region along with --volume-id followed by the desired check attribute.
-The warning and critical values need to passed as command separated values. eg:- warning=<warningValue>,critical=<criticalValue>
+Note: While creating a sensu check it is important to specify the --region along with --volume-id attribute. Also the warning and critical values need to passed as comma separated values. eg:- warning=80,critical=90
 
 ### Example commands
 Command to create a check which sets threshold for maximum iops :
