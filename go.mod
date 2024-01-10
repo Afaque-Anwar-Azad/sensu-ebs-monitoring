@@ -1,6 +1,6 @@
 module github.com/Afaque-Anwar-Azad/sensu-ebs-monitoring
 
-go 1.19
+go 1.21
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
@@ -41,8 +41,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/sensu/core/v2 v2.16.1 // indirect
 	github.com/sensu/sensu-api-tools v0.1.0 // indirect
-	github.com/sensu/sensu-go/types v0.12.0 // indirect
-	github.com/sensu/sensu-licensing v0.1.2 // indirect
 	github.com/sensu/sensu-licensing/v2 v2.2.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.1.2 // indirect
