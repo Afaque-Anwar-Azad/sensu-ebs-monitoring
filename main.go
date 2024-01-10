@@ -87,15 +87,6 @@ var (
 		&sensu.PluginConfigOption[string]{
 			Path:      "",
 			Env:       "",
-			Argument:  "max-readthroughput",
-			Shorthand: "",
-			Default:   "",
-			Usage:     "Sets maximum threshold for read throughput",
-			Value:     &plugin.maxReadThroughput,
-		},
-		&sensu.PluginConfigOption[string]{
-			Path:      "",
-			Env:       "",
 			Argument:  "min-readthroughput",
 			Shorthand: "",
 			Default:   "",
@@ -168,7 +159,7 @@ var (
 		&sensu.PluginConfigOption[string]{
 			Path:      "",
 			Env:       "",
-			Argument:  "min-write",
+			Argument:  "avg-writelatency",
 			Shorthand: "",
 			Default:   "",
 			Usage:     "Sets threshold for write latency",
