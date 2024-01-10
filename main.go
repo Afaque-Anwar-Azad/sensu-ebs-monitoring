@@ -13,9 +13,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
-	corev2 "github.com/sensu/core/v2"
 
-	// corev2 "github.com/sensu/sensu-go/api/core/v2"
+	//corev2 "github.com/sensu/core/v2"
+
+	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/sensu/sensu-plugin-sdk/sensu"
 )
 

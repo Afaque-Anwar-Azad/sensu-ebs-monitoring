@@ -6,8 +6,8 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.32.2
-	github.com/sensu/core/v2 v2.16.1
-	github.com/sensu/sensu-plugin-sdk v0.18.0
+	github.com/sensu/sensu-go/api/core/v2 v2.16.0
+	github.com/sensu/sensu-plugin-sdk v0.16.0
 )
 
 require (
@@ -39,8 +39,10 @@ require (
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/robertkrimen/otto v0.0.0-20221006114523-201ab5b34f52 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/sensu/core/v2 v2.16.1 // indirect
 	github.com/sensu/sensu-api-tools v0.1.0 // indirect
-	github.com/sensu/sensu-licensing/v2 v2.2.1 // indirect
+	github.com/sensu/sensu-go/types v0.12.0 // indirect
+	github.com/sensu/sensu-licensing v0.1.2 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.1.2 // indirect
 	github.com/spf13/cast v1.3.0 // indirect
