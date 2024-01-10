@@ -326,7 +326,7 @@ func CheckMinThresholdStatus(currentValue int, warning int, critical int) int {
 }
 
 func CheckmaxReadThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
-	currentMaxReadThroughput := getMetric(client, volumeID, "VolumeReadBytes", "sum", period) / period / 1024
+	currentMaxReadThroughput := getMetric(client, volumeID, "VolumeReadBytes", "Sum", period) / period / 1024
 	return currentMaxReadThroughput, CheckMaxThresholdStatus(currentMaxReadThroughput, warning, critical)
 
 }
@@ -337,7 +337,7 @@ func CheckminReadThroughput(client *cloudwatch.Client, volumeID string, warning 
 }
 
 func CheckmaxWriteThroughput(client *cloudwatch.Client, volumeID string, warning int, critical int, period int) (int, int) {
-	currentMaxWriteThroughput := getMetric(client, volumeID, "VolumeWriteBytes", "sum", period) / period / 1024
+	currentMaxWriteThroughput := getMetric(client, volumeID, "VolumeWriteBytes", "Sum", period) / period / 1024
 	return currentMaxWriteThroughput, CheckMaxThresholdStatus(currentMaxWriteThroughput, warning, critical)
 
 }
